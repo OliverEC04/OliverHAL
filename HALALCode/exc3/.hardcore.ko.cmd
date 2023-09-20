@@ -1,0 +1,1 @@
+cmd_/home/stud/Desktop/HAL/HALALCode/exc3/hardcore.ko := arm-poky-linux-gnueabi-ld -r -EL --build-id  -T ./scripts/module-common.lds -T ./arch/arm/kernel/module.lds -o /home/stud/Desktop/HAL/HALALCode/exc3/hardcore.ko /home/stud/Desktop/HAL/HALALCode/exc3/hardcore.o /home/stud/Desktop/HAL/HALALCode/exc3/hardcore.mod.o;  true
