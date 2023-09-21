@@ -1,0 +1,1 @@
+cmd_/home/stud/Desktop/Git/OliverHAL/HALALCode/exc4/gpio_driver.mod := { echo  /home/stud/Desktop/Git/OliverHAL/HALALCode/exc4/gpio_driver.o; echo; } > /home/stud/Desktop/Git/OliverHAL/HALALCode/exc4/gpio_driver.mod
