@@ -7,7 +7,7 @@
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Hugh J Nuds");
-MODULE_DESCRIPTION("A driver to implement Hitlers regime on your pc");
+MODULE_DESCRIPTION("Modulervoks");
 MODULE_VERSION("69.420");
 
 const int gpio_num = 16;
@@ -37,12 +37,56 @@ int switch_release(struct inode *inode, struct file *filep)
     return 0;
 }
 
+ssize_t switch_write(struct file *filep, const char __user *ubuf, size_t count, loff_t *f_pos)
+{
+    int len, value;
+    char kbuf[12];
+
+    len = count < sizeof(kbuf) ? count : sizeof(kbuf) - 1;
+
+    if (copy_from_user(kbuf, ubuf, len))
+        return -EFAULT;
+
+    kbuf[len] = '\0'; // Null-terminate the buffer
+
+    if (sscanf(kbuf, "%d", &value) != 1)
+        return -EINVAL;
+
+    gpio_set_value(26, value); // Set the GPIO value
+    pr_info("Wrote %i to GPIO\n", value);
+
+    *f_pos += len;
+
+    return len;
+}
+
+ssize_t switch_read(struct file *filep, char __user *buf, size_t count, loff_t *f_pos)
+{
+    // Hvilke trin er det der skal udføres?
+    // Hint konvertering fra int til string kan gøres via sprintf() - Tekststrenge frem for binære værdier gør det nemmere at læse værdien i user-space med f.eks. cat.
+
+    char kbuf[12];
+    int len, value;
+    value = gpio_get_value(gpio_num);
+    len = count < 12 ? count : 12; /* Truncate to smallest */
+    len = snprintf(kbuf, len, "%i", value); /* Create string */
+    unsigned long ret = copy_to_user(buf, kbuf, ++len); /* Copy to user */
+    if (ret)
+    {
+        return -EFAULT;
+    }
+
+    *f_pos += len; /* Update cursor in file */
+
+    return len;
+}
+
 struct file_operations switch_fops = {
     .owner = THIS_MODULE,
     .open = switch_open,
     .release = switch_release,
-    // .write = switch_write,
-    // .read = switch_read,
+    .write = switch_write,
+    .read = switch_read,
 };
 
 static int switch_init(void)
@@ -64,6 +108,12 @@ static int switch_init(void)
     }
 
     err = gpio_direction_input(gpio_num);
+    if (err < 0)
+    {
+        //err
+    }
+
+    err = gpio_direction_output(26, 0);
     if (err < 0)
     {
         //err
